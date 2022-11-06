@@ -11,6 +11,6 @@ define('ZOHOWP_PMPRO_DIR_PATH', plugin_dir_path(__FILE__));
 define('ZOHOWP_PMPRO_VERSION', '1.0.0');
 
 if (defined('ZOHOWP_DIR_PATH')) {
-	require_once ZOHOWP_PMPRO_DIR_PATH . '/includes/class-plugin.php';
+	require_once ZOHOWP_PMPRO_DIR_PATH . '/includes/plugin.php';
 	\ZohoWP\PMPro\Plugin::instance();
 }
