@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: ZohoWP - Paid Memberships Pro Integration
-Description: 
+Description: Provides a Paid Memberships Pro integration for ZohoWP, adding options to add users to mailing lists.
 Version: 1.0.0
 Author: Mark Lagae
 Text Domain: zohowp-pmpro
