@@ -21,38 +21,78 @@ class Admin extends \ZohoWP\Admin\Page
 
 	public static function admin_init()
 	{
-		// Not ideal
-		// Needs:
-		// users in level added to list
-		// controls on how it's done
-		// training class will need to change for new members, not all
-		// yearly membership needs to be linked to users level change events
-		// can have list of 'links' that connect level to zoho list, each with options for timing, filtering, etc
+		// mapping between zoho fields and user attributes
+		self::register_setting('zohowp_pmpro_fields', ['type' => 'array', 'default' => []]);
+		// level id => [ listkey, ... (actions?, on level change, on order, etc) ]
 		self::register_setting('zohowp_pmpro_levels', ['type' => 'array', 'default' => []]);
 		self::add_section(
-			'memberships',
-			__('Memberships', 'zohowp-pmpro'),
-			'memberships_section'
+			'fields',
+			__('Field Mapping', 'zohowp-pmpro'),
+			'fields_section'
 		);
-
+		$all_fields = \ZohoWP\API\Campaigns::get_all_fields();
+		foreach ($all_fields as &$field) {
+			$no = $field['no'];
+			$required = $field['IS_MANDATORY'];
+			$name = $field['DISPLAY_NAME'];
+			$key = $field['FIELD_NAME'];
+			self::add_field(
+				"field_$no",
+				$name . ($required ? ' (Required)' : ''),
+				'fields_field',
+				'fields',
+				['key' => $key]
+			);
+		}
+		self::add_section(
+			'levels',
+			__('Membership Levels', 'zohowp-pmpro'),
+			'levels_section'
+		);
 		$all_levels = pmpro_getAllLevels(true, true);
 		foreach ($all_levels as $id => &$level) {
 			self::add_field(
 				"level_$id",
 				$level->name,
 				'levels_field',
-				'memberships',
+				'levels',
 				['level' => $level->id]
 			);
 		}
 	}
 
-	public static function memberships_section()
+	public static function fields_section()
 	{
 ?>
-		<p>
-			Assign membership levels to email lists
-		</p>
+		<p><?php _e('Configure field mapping between Zoho and Paid Memberships Pro.', 'zohowp-pmpro'); ?></p>
+	<?php
+	}
+
+	public static function fields_field($args)
+	{
+		$options = get_option('zohowp_pmpro_fields');
+		$id = $args['key'];
+		$value = empty($options[$id]) ? false : $options[$id];
+		$attributes = self::html_attributes([
+			'name' => "zohowp_pmpro_fields[$id]",
+			'value' => $value
+		]);
+	?>
+		<select <?php echo $attributes; ?>>
+			<option value=''><?php _e('Select source', 'zohowp-pmpro'); ?></option>
+		</select>
+	<?php
+	}
+
+	public static function levels_section()
+	{
+	?>
+		<p><?php _e('Assign membership levels to email lists.', 'zohowp-pmpro'); ?></p>
+		<script>
+			jQuery(document).ready(function() {
+				// select list on change, toggle details section
+			});
+		</script>
 	<?php
 	}
 
@@ -60,7 +100,7 @@ class Admin extends \ZohoWP\Admin\Page
 	{
 		$options = get_option('zohowp_pmpro_levels');
 		$id = $args['level'];
-		$value = isset($options[$id]) ? $options[$id] : '';
+		$value = empty($options[$id]) ? '' : $options[$id];
 		$attributes = self::html_attributes([
 			'name' => "zohowp_pmpro_levels[$id]",
 			'value' => $value
@@ -78,6 +118,18 @@ class Admin extends \ZohoWP\Admin\Page
 			}
 			?>
 		</select>
+		<div id='zohowp_pmpro_level_<?php echo $id; ?>_details' style='display: none;'>
+			<h4>Triggers</h4>
+			<ul>
+				<li>Membership level change</li>
+				<li>Order added or updated</li>
+			</ul>
+			<h4>Allowed Actions</h4>
+			<ul>
+				<li>Membership level change</li>
+				<li>Order added or updated</li>
+			</ul>
+		</div>
 <?php
 	}
 }

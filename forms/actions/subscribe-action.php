@@ -125,7 +125,7 @@ class Subscribe_Action extends \ElementorPro\Modules\Forms\Classes\Action_Base
 		// Mailing list select
 		$lists = \ZohoWP\API\Campaigns::get_mailing_lists();
 		$list_options = ['' => 'Select'];
-		if ($lists !== false) {
+		if ($lists !== false && is_array($lists)) {
 			foreach ($lists as $list) {
 				$list_options[$list['listkey']] = $list['listname'];
 			}
