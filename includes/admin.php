@@ -21,9 +21,7 @@ class Admin extends \ZohoWP\Admin\Page
 
 	public static function admin_init()
 	{
-		// mapping between zoho fields and user attributes
 		self::register_setting('zohowp_pmpro_fields', ['type' => 'array', 'default' => []]);
-		// level id => [ listkey, ... (actions?, on level change, on order, etc) ]
 		self::register_setting('zohowp_pmpro_levels', ['type' => 'array', 'default' => []]);
 		self::add_section(
 			'fields',
@@ -74,7 +72,7 @@ class Admin extends \ZohoWP\Admin\Page
 		$zoho_id = $args['key'];
 		$selected_option = empty($options[$zoho_id]) ? '' : $options[$zoho_id];
 		$attributes = self::html_attributes(['name' => "zohowp_pmpro_fields[$zoho_id]"]);
-		$available_fields = self::available_user_fields();
+		$available_fields = Plugin::available_user_fields();
 	?>
 		<select <?php echo $attributes; ?>>
 			<option <?php echo self::html_attributes(['selected' => $selected_option === '', 'value' => '']) ?>><?php _e('-- Select user field --', 'zohowp-pmpro'); ?></option>
@@ -151,8 +149,12 @@ class Admin extends \ZohoWP\Admin\Page
 					<label <?php echo self::html_attributes(['for' => "$base_id-trigger_level_change"]); ?>><?php _e('Membership level change', 'zohowp-pmpro'); ?></label>
 				</div>
 				<div>
+					<input <?php echo self::html_attributes(['checked' => array_search('order_add', $triggers), 'id' => "$base_id-trigger_order_add", 'name' => "{$base_name}[triggers][]", 'type' => 'checkbox', 'value' => 'order_add']); ?> />
+					<label <?php echo self::html_attributes(['for' => "$base_id-trigger_order_add"]); ?>><?php _e('Order added', 'zohowp-pmpro'); ?></label>
+				</div>
+				<div>
 					<input <?php echo self::html_attributes(['checked' => array_search('order_update', $triggers), 'id' => "$base_id-trigger_order_update", 'name' => "{$base_name}[triggers][]", 'type' => 'checkbox', 'value' => 'order_update']); ?> />
-					<label <?php echo self::html_attributes(['for' => "$base_id-trigger_order_update"]); ?>><?php _e('Order added or updated', 'zohowp-pmpro'); ?></label>
+					<label <?php echo self::html_attributes(['for' => "$base_id-trigger_order_update"]); ?>><?php _e('Order updated', 'zohowp-pmpro'); ?></label>
 				</div>
 			</div>
 			<div>
@@ -170,42 +172,4 @@ class Admin extends \ZohoWP\Admin\Page
 <?php
 	}
 
-	private static function available_user_fields()
-	{
-		return apply_filters(
-			'zohowp_pmpro_available_user_fields',
-			[
-				'user' => [
-					'label' => __('User Fields', 'zohowp-pmpro'),
-					'fields' => [
-						'user_login'		=> __('User Login', 'zohowp-pmpro'),
-						'user_nicename'		=> __('User Nicename', 'zohowp-pmpro'),
-						'user_email'		=> __('User Email', 'zohowp-pmpro'),
-						'user_url'			=> __('User URL', 'zohowp-pmpro'),
-						'user_registered'	=> __('User Registered', 'zohowp-pmpro'),
-						'display_name'		=> __('Display Name', 'zohowp-pmpro'),
-					]
-				],
-				'user_meta' => [
-					'label' => __('User Meta Fields', 'zohowp-pmpro'),
-					'fields' => [
-						'nickname'			=> __('User Nickname', 'zohowp-pmpro'),
-						'first_name'		=> __('User First Name', 'zohowp-pmpro'),
-						'last_name'			=> __('User Last Name', 'zohowp-pmpro'),
-						'description'		=> __('User Description', 'zohowp-pmpro'),
-						'pmpro_bfirstname'	=> __('Billing First Name', 'zohowp-pmpro'),
-						'pmpro_blastname'	=> __('Billing First Name', 'zohowp-pmpro'),
-						'pmpro_bemail'		=> __('Billing Email', 'zohowp-pmpro'),
-						'pmpro_bphone'		=> __('Billing Phone', 'zohowp-pmpro'),
-						'pmpro_baddress1'	=> __('Billing Address 1', 'zohowp-pmpro'),
-						'pmpro_baddress2'	=> __('Billing Address 2', 'zohowp-pmpro'),
-						'pmpro_bcity'		=> __('Billing City', 'zohowp-pmpro'),
-						'pmpro_bstate'		=> __('Billing State', 'zohowp-pmpro'),
-						'pmpro_bzipcode'	=> __('Billing Zip Code', 'zohowp-pmpro'),
-						'pmpro_bcountry'	=> __('Billing Country', 'zohowp-pmpro'),
-					]
-				],
-			]
-		);
-	}
 }
