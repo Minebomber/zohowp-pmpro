@@ -217,9 +217,9 @@ class Plugin
 			$mapping = $options[$zoho_field['FIELD_NAME']];
 			list($group, $key) = explode('$', $mapping);
 			$data = &$groups[$group];
-			if (is_object($data)) {
+			if (is_object($data) && isset($data->$key)) {
 				$value = $data->$key;
-			} elseif (is_array($data)) {
+			} elseif (is_array($data) && isset($data[$key])) {
 				$value = $data[$key];
 			} else {
 				$value = '';
